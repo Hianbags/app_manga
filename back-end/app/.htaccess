@@ -1,0 +1,5 @@
+<IfModule mime_module>
+   Addhandler application/x-httpd-ea-php81__lsphp .php .php8 .phtml
+</IfModule>
+ RewriteEngine On
+ RewriteRule ^(.*)$ public/$1 [L]

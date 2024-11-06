@@ -1,0 +1,4 @@
+<resources>
+    <string name="zalo_flutter_app_id">[ZaloAppID]</string>
+    <string name="zalo_flutter_app_id_protocol">zalo-[ZaloAppID]</string>
+</resources>

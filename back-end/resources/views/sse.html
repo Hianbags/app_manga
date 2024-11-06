@@ -1,0 +1,121 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Chat App</title>
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+    <style>
+        body {
+            background-color: #f7f9fc;
+            font-family: 'Arial', sans-serif;
+        }
+        .container {
+            margin-top: 50px;
+        }
+        .card {
+            border-radius: 10px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+        }
+        .card-header {
+            background-color: #007bff;
+            color: #fff;
+            border-top-left-radius: 10px;
+            border-top-right-radius: 10px;
+            font-size: 1.25rem;
+            text-align: center;
+        }
+        .card-body {
+            padding: 30px;
+        }
+        #messages {
+            border: 1px solid #ddd;
+            padding: 10px;
+            height: 300px;
+            overflow-y: scroll;
+        }
+        #input {
+            margin-top: 10px;
+        }
+        .form-control {
+            border-radius: 5px;
+        }
+        .btn-primary {
+            background-color: #007bff;
+            border-color: #007bff;
+            border-radius: 5px;
+            padding: 10px 20px;
+            font-size: 1rem;
+        }
+        .btn-primary:hover {
+            background-color: #0056b3;
+            border-color: #0056b3;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="row justify-content-center">
+            <div class="col-md-6">
+                <div class="card">
+                    <div class="card-header">Chat App</div>
+                    <div class="card-body">
+                        <div id="messages"></div>
+                        <div id="input">
+                            <input type="text" id="message" class="form-control" placeholder="Enter message">
+                            <button onclick="sendMessage()" class="btn btn-primary mt-2">Send</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let lastId = 0;
+        const receiverId = 2; // ID của người nhận
+        const accessToken = 'YOUR_ACCESS_TOKEN'; // Thay thế bằng token của bạn
+
+        function addMessage(message) {
+            const messagesDiv = document.getElementById('messages');
+            const messageDiv = document.createElement('div');
+            messageDiv.textContent = `User ${message.sender_id}: ${message.message}`;
+            messagesDiv.appendChild(messageDiv);
+            messagesDiv.scrollTop = messagesDiv.scrollHeight;
+        }
+
+        function sendMessage() {
+            const messageInput = document.getElementById('message');
+            const message = messageInput.value;
+            if (message.trim() === '') return;
+
+            fetch('http://localhost:8000/api/messages', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${accessToken}`
+                },
+                body: JSON.stringify({
+                    receiver_id: receiverId,
+                    message: message
+                })
+            })
+            .then(response => response.json())
+            .then(data => {
+                messageInput.value = '';
+                addMessage(data);
+            });
+        }
+
+        const eventSource = new EventSource('http://localhost:8000/api/messages', {
+            headers: {
+                'Authorization': `Bearer ${accessToken}`
+            }
+        });
+        eventSource.onmessage = function(event) {
+            const message = JSON.parse(event.data);
+            addMessage(message);
+        };
+    </script>
+</body>
+</html>
